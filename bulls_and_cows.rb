@@ -8,6 +8,7 @@ class Game
     @color_code = new_code
     @max_rounds = max_rounds
     @rounds = 1
+    # set @games to 0 to enable tutorial on first play
     @games = 1
     @player = Player.new('Mastermind')
   end
@@ -15,7 +16,7 @@ class Game
   def play
     p @color_code
     tutorial unless @games.positive?
-    while @rounds < @max_rounds + 1
+    while @rounds <= @max_rounds
       round
       @rounds += 1
     end
@@ -55,9 +56,19 @@ class Game
   def check(guess)
     result = Array.new(2, 0)
     @color_code.each_with_index do |code, i|
-      result[0] += 1 if guess[i] == code
+      next unless guess[i] == code
+
+      result[0] += 1
     end
+    result[1] = check_colors(guess) - result[0]
     result
+  end
+
+  def check_colors(guess, count = 0)
+    guess.uniq.each do |color|
+      count += [guess.count(color), @color_code.count(color)].min if @color_code.count(color).positive?
+    end
+    count
   end
 
   def new_code
