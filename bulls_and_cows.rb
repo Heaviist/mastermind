@@ -9,37 +9,41 @@ class Game
     @max_rounds = max_rounds
     @rounds = 1
     # set @games to 0 to enable tutorial on first play
-    @games = 1
+    @games = 0
     @player = Player.new('Mastermind')
   end
 
   def play
     p @color_code
     tutorial unless @games.positive?
-    while @rounds <= @max_rounds
-      round
-      @rounds += 1
-    end
     @games += 1
+    round
   end
 
   private
 
   def tutorial
     print "Welcome Cowboy Mastermind!\nThe bulls and cows are running around freely. Will you help us out?\n\n"
-    print 'This is a guessing game called Mastermind. There is a secret code, consisting of 4 colors. '
+    print 'This is a challenge for a Mastermind. There is a secret code to the cattle Bell, consisting of 4 colors. '
     print 'Your goal is to guess this code within 12 turns. Capture all the bulls and cows and lock them back up!'
     print "\n\nYou can choose from the following colors:\n#{COLORS.join("\n")}\n\n"
-    print 'Every guessing round you can input a color for each position. Duplicates are allowed, blanks are not.'
-    print "\nYou will they be shown:\n"
+    print 'Every guessing round you can input a color for each position. Duplicates are allowed, blanks are not. '
+    print "You will then be shown:\n"
     print "- how many colors are in the correct position\n- how many other colors are correct but in the wrong position"
-    print "\n\nNote: if you choose a color that's not in the list above, it ask all your guesses for that round again."
+    print "\n\nNote: if you choose a color that's not in the list above, "
+    print "you will be asked to enter all guesses for that round again.\n"
   end
 
   def round
-    print "\n\nRound ##{@rounds}. Cowboy #{@player.name}, type your guess below:\n"
-    result = check(guesses)
-    print "Correct position AND color:    #{result[0]}\n\nCorrect color, wrong position: #{result[1]}"
+    while @rounds <= @max_rounds
+      print "\nRound ##{@rounds}. Cowboy #{@player.name}, type your guess below:\n"
+      result = check(guesses)
+      print "Correct position AND color:    #{result[0]}\n\n"
+      print "Correct color, wrong position: #{result[1]}\n"
+      winner if result.first == @color_code.length
+      @rounds += 1
+    end
+    loser
   end
 
   def guesses
@@ -49,7 +53,7 @@ class Game
       code[i] = gets.chomp.downcase
       break guesses unless COLORS.include?(code[i])
     end
-    puts "\nYour guesses: #{code.join(' - ')}\n\n"
+    puts "\nYour guess: #{code.join(' - ')}\n\n"
     code
   end
 
@@ -69,6 +73,35 @@ class Game
       count += [guess.count(color), @color_code.count(color)].min if @color_code.count(color).positive?
     end
     count
+  end
+
+  def winner
+    @player.wins += 1
+    @rounds = @max_rounds + 1
+    print "\nWINNER!\n\nYou have secured all the cows and bulls!"
+    print "\n\nA for effort and a Bell for the Big Brain."
+    score
+    new_game
+  end
+
+  def loser
+    print "\n\nThe cows and bulls will roam free until the end of time! No Bells for you..."
+    score
+    new_game
+  end
+
+  def new_game
+    print "\n\nDo you want to play a new game? (y/n)\n"
+    abort score.to_s unless gets.chomp == 'y'
+
+    @rounds = 1
+    @color_code = new_code
+    play
+  end
+
+  def score
+    print "\n\nYou have won #{@player.wins} Bell#{'s' if @player.wins > 1} "
+    print "in #{@games} attempt#{'s' if @games > 1}."
   end
 
   def new_code
