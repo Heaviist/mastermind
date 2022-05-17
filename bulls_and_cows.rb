@@ -107,6 +107,10 @@ class Game
   def new_code
     [COLORS.sample, COLORS.sample, COLORS.sample, COLORS.sample]
   end
+
+  def permutations
+    COLORS.repeated_permutation(4).to_a
+  end
 end
 
 # Player of the game
