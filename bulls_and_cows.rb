@@ -45,7 +45,6 @@ class Game
     @color_code = new_code
     @max_rounds = max_rounds
     @rounds = 1
-    # set @games to 0/1 to enable/disable tutorial on first play
     @games = 0
     @player = Player.new('Mastermind')
   end
@@ -68,7 +67,7 @@ class Game
   def human_crack
     while @rounds <= @max_rounds
       print "\nRound ##{@rounds}. Cowboy #{@player.name}, type your guess below:\n"
-      result = check(guesses)
+      result = check(guesses, @color_code)
       print_result(result)
       winner if result.first == @color_code.length
       @rounds += 1
@@ -129,17 +128,25 @@ class Game
     COLORS.repeated_permutation(4).to_a
   end
 
-  def pc_crack(_code)
-    guess = pc_guess
-    print "Computer guess #{@rounds}: #{pc_guess.join(' - ')}"
-    result = check(pc_guess)
+  def update_permutations(result, guesses, options = permutations)
+    guesses.each_with_index do |guess, i|
+      options.select! { |a| a[i] == guess } if result[0] == 1
+      options.reject! { |a| a[i] == guess } if result[0].zero?
+    end
+    p options.length
+  end
+
+  def pc_crack(code, guess = pc_guess)
+    print "Computer guess #{@rounds}: #{guess.join(' - ')}\n"
+    result = check(guess, code)
     print_result(result)
+    update_permutations(result, guess)
     @rounds += 1
   end
 
-  def pc_guess
+  def pc_guess(round1 = [COLORS.sample])
     if @rounds == 1
-      ([COLORS.sample] * 2 << [COLORS.sample] * 2).flatten
+      (round1 * 2 << [(COLORS - round1).sample] * 2).flatten
     else
       ([COLORS.sample] << [COLORS.sample]).flatten
     end
