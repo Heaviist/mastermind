@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 # define checks
-module Checks
+module Codes
+  COLORS = %w[black white orange brown red pink].sort.freeze
+
   def check(guess, code, result = Array.new(2, 0))
     code.each_with_index do |color, i|
       next unless guess[i] == color
@@ -18,10 +20,31 @@ module Checks
     end
     count
   end
+
+  def permutations
+    COLORS.repeated_permutation(4).to_a
+  end
+
+  def new_code(colors = COLORS)
+    [colors.sample, colors.sample, colors.sample, colors.sample]
+  end
+
+  def update_permutations(result, guesses, options = permutations)
+    options.select! { |a| (a & guesses).empty? } if result == [0, 0]
+    options.select! { |a| (a & guesses).length == 1 } if result == [0, 1]
+    options.select! { |a| (a & guesses).length >= 1 && (guesses - a).length <= 2 } if result == [0, 2] #
+    options.select! { |a| (a | guesses).length >= 4 && (a - guesses).length <= 1 } if result == [0, 3]
+    options.select! { |a| (a - guesses).empty? } if result == [0, 4]
+    guesses.each_with_index do |guess, i|
+      options.select! { |a| a[i] == guess } if result[0] == 1
+      options.reject! { |a| a[i] == guess } if result[0].zero?
+    end
+    p options.length
+  end
 end
 
 # Write tutorial for the game
-module Tutorials
+module Texts
   def tutorial
     print "Welcome Cowboy #{@player.name}!\nThe bulls and cows are running around freely. Will you help us out?\n\n"
     print 'This is a challenge for a Mastermind. There is a secret code to the cattle Bell, consisting of 4 colors. '
@@ -33,14 +56,36 @@ module Tutorials
     print "\n\nNote: if you choose a color that's not in the list above, "
     print "you will be asked to enter all entries for that round again.\n"
   end
-end
 
-COLORS = %w[black white orange brown red pink].sort.freeze
+  def play_as_computer?
+    puts "You can also challenge the computer to break your code.\n"
+    puts 'Do you prefer to create a code for the computer to crack? (y/n)'
+  end
+
+  def print_result(result)
+    print "Correct position AND color:    #{result[0]}\n\n"
+    print "Correct color, wrong position: #{result[1]}\n"
+  end
+
+  def loser_text
+    print "\n\nThe cows and bulls will roam free until the end of time! No Bells for you..."
+  end
+
+  def score
+    print "\n\nYou have won #{@player.wins} Bell#{'s' if @player.wins > 1} "
+    print "in #{@games} attempt#{'s' if @games > 1}."
+  end
+
+  def winner_text
+    print "\nWINNER!\n\nYou have secured all the cows and bulls!"
+    print "\n\nA for effort and a Bell for the Big Brain."
+  end
+end
 
 # basic mastermind game
 class Game
-  include Checks
-  include Tutorials
+  include Codes
+  include Texts
   def initialize(max_rounds = 12)
     @color_code = new_code
     @max_rounds = max_rounds
@@ -53,7 +98,7 @@ class Game
     p @color_code
     tutorial unless @games.positive?
     @games += 1
-    puts 'Do you prefer to create a code for the computer to crack? (y/n)'
+    play_as_computer?
     if gets.chomp.downcase == 'y'
       @color_code = guesses
       pc_crack(@color_code)
@@ -75,11 +120,6 @@ class Game
     loser
   end
 
-  def print_result(result)
-    print "Correct position AND color:    #{result[0]}\n\n"
-    print "Correct color, wrong position: #{result[1]}\n"
-  end
-
   def guesses
     code = []
     (0..3).each do |i|
@@ -94,14 +134,13 @@ class Game
   def winner
     @player.wins += 1
     @rounds = @max_rounds + 1
-    print "\nWINNER!\n\nYou have secured all the cows and bulls!"
-    print "\n\nA for effort and a Bell for the Big Brain."
+    winner_text
     score
     new_game
   end
 
   def loser
-    print "\n\nThe cows and bulls will roam free until the end of time! No Bells for you..."
+    loser_text
     score
     new_game
   end
@@ -113,27 +152,6 @@ class Game
     @rounds = 1
     @color_code = new_code
     play
-  end
-
-  def score
-    print "\n\nYou have won #{@player.wins} Bell#{'s' if @player.wins > 1} "
-    print "in #{@games} attempt#{'s' if @games > 1}."
-  end
-
-  def new_code
-    [COLORS.sample, COLORS.sample, COLORS.sample, COLORS.sample]
-  end
-
-  def permutations
-    COLORS.repeated_permutation(4).to_a
-  end
-
-  def update_permutations(result, guesses, options = permutations)
-    guesses.each_with_index do |guess, i|
-      options.select! { |a| a[i] == guess } if result[0] == 1
-      options.reject! { |a| a[i] == guess } if result[0].zero?
-    end
-    p options.length
   end
 
   def pc_crack(code, guess = pc_guess)
