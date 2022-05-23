@@ -54,8 +54,9 @@ module Texts
   include Codes
 
   def tutorial
-    print "Welcome Cowboy #{@player.name}!\nThe bulls and cows are running around freely. Will you help us out?\n\n"
-    print 'This is a challenge for a Mastermind. There is a secret code to the cattle Bell, consisting of 4 colors. '
+    print "Welcome Cowboy #{@player.name}!\nThe bulls and cows are running around freely all over the land."
+    print " Will you help us out and catch them all? Just find the secret code to the cattle Bell!\n\n"
+    print 'This is a challenge for a Mastermind. The code to the cattle Bell consists of 4 colors. '
     print 'Your goal is to guess this code within 12 turns. Capture all the bulls and cows by ringing the Bell'
     print " and lock them back up!\n\nYou can choose from the following colors:\n#{COLORS.join("\n")}\n\n"
     print 'Every guessing round you can input a color for each position. Duplicates are allowed, blanks are not. '
