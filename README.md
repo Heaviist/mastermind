@@ -21,7 +21,20 @@ Build a Mastermind game from the command line where you have 12 turns to guess t
 - Creating the computer strategy might require a lot of conditionals and branching. Gonna be challenging to find out the best strategy and then convert that to working code that doesn't become a giant mess.
 
 # Results and Evaluation
-To be added later.
+- The basics were definitely similar, though clearly adding an option for computer play is different. I should have probably moved a lot of code out of the Game class and into either the Player class or its descendants. Finding the right way to implement the checks was a challenge as well. Trying to find the perfect solution, again, cost more time than it should have, though I feel like I've learned the limitations of working and checking arrays with that for sure.
+- Should have done that I guess.
+- This turned out to be a relatively easy solution.
+- This helped a lot, comment now removed from code.
+- Went for the lazy simple approach to have seperate entries for each position, all checked seperately, which the code then turns into an array which can be easily compared to the other arrays in the code.
+- Once I wrote out the steps of the process in my head, it was fairly obvious how to do this in code.
+- It was
+- This was an interesting experience, going on a semi deep dive on wikipedia about minimax theory and so on. Eventually, for simplicity's sake, went with checking the guess against all possible codes and then selecting the ones which have the correct corresponding result. All other solutions quickly became madness indeed.
 
 # Notes for future revisiting
-To be added later.
+- Seperate code out from Game class to Player classes.
+- Implement using abbrevations for typing the colors.
+- Implement options for hints for human play.
+- Add options for difficulty level, both for computer play and human play
+- Add flexibility for number of colors and positions
+- Add options for 2 human players playing against each other in turns?
+- Create deeper/more efficient strategies for Computer to guess in fewer turns.
