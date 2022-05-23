@@ -3,6 +3,11 @@
 # define checks
 module Codes
   COLORS = %w[black white orange brown red pink].sort.freeze
+  PERMUTATIONS = COLORS.repeated_permutation(4).to_a
+
+  def colors
+    COLORS
+  end
 
   def check(guess, code, result = Array.new(2, 0))
     code.each_with_index do |color, i|
@@ -21,30 +26,23 @@ module Codes
     count
   end
 
-  def permutations
-    COLORS.repeated_permutation(4).to_a
-  end
-
   def new_code(colors = COLORS)
     [colors.sample, colors.sample, colors.sample, colors.sample]
   end
 
-  def update_permutations(result, guesses, options = permutations)
-    options.select! { |a| (a & guesses).empty? } if result == [0, 0]
-    options.select! { |a| (a & guesses).length == 1 } if result == [0, 1]
-    options.select! { |a| (a & guesses).length >= 1 && (guesses - a).length <= 2 } if result == [0, 2] #
-    options.select! { |a| (a | guesses).length >= 4 && (a - guesses).length <= 1 } if result == [0, 3]
-    options.select! { |a| (a - guesses).empty? } if result == [0, 4]
-    guesses.each_with_index do |guess, i|
-      options.select! { |a| a[i] == guess } if result[0] == 1
-      options.reject! { |a| a[i] == guess } if result[0].zero?
+  def possible_codes(guess, result, options, outcomes = {}, outcome = [])
+    options.each do |code|
+      outcome = check(guess, code)
+      outcomes[code] = outcome if outcome == result
     end
-    p options.length
+    outcomes.keys
   end
 end
 
 # Write tutorial for the game
 module Texts
+  include Codes
+
   def tutorial
     print "Welcome Cowboy #{@player.name}!\nThe bulls and cows are running around freely. Will you help us out?\n\n"
     print 'This is a challenge for a Mastermind. There is a secret code to the cattle Bell, consisting of 4 colors. '
@@ -72,13 +70,19 @@ module Texts
   end
 
   def score
-    print "\n\nYou have won #{@player.wins} Bell#{'s' if @player.wins > 1} "
+    print "\n\nYou have won #{@player.wins} Bell#{'s' if @player.wins != 1} "
     print "in #{@games} attempt#{'s' if @games > 1}."
   end
 
-  def winner_text
-    print "\nWINNER!\n\nYou have secured all the cows and bulls!"
-    print "\n\nA for effort and a Bell for the Big Brain."
+  def winner_text(player)
+    if player == 'human'
+      print "\nWINNER!\n\nYou have secured all the cows and bulls!"
+      print "\n\nA for effort and a Bell for the Big Brain."
+    else
+      print "\nThe computer has cracked your code! That's a real Big Brain!"
+      print "\n\nThe computer holds all the Bells, and whistles. Nothing left for you!"
+      print "\n\nReady for an other challenge?"
+    end
   end
 end
 
@@ -131,10 +135,10 @@ class Game
     code
   end
 
-  def winner
-    @player.wins += 1
+  def winner(player = 'human')
+    @player.wins += 1 if player == 'human'
     @rounds = @max_rounds + 1
-    winner_text
+    winner_text(player)
     score
     new_game
   end
@@ -154,12 +158,15 @@ class Game
     play
   end
 
-  def pc_crack(code, guess = pc_guess)
+  def pc_crack(code, previous_options = PERMUTATIONS, guess = pc_guess)
     print "Computer guess #{@rounds}: #{guess.join(' - ')}\n"
     result = check(guess, code)
     print_result(result)
-    update_permutations(result, guess)
+    winner('Computer') if result.first == @color_code.length
     @rounds += 1
+    gets
+    options = possible_codes(guess, result, previous_options)
+    pc_crack(code, options, options.sample)
   end
 
   def pc_guess(round1 = [COLORS.sample])
