@@ -47,8 +47,8 @@ module Texts
   def tutorial
     print "Welcome Cowboy #{@player.name}!\nThe bulls and cows are running around freely. Will you help us out?\n\n"
     print 'This is a challenge for a Mastermind. There is a secret code to the cattle Bell, consisting of 4 colors. '
-    print 'Your goal is to guess this code within 12 turns. Capture all the bulls and cows and lock them back up!'
-    print "\n\nYou can choose from the following colors:\n#{COLORS.join("\n")}\n\n"
+    print 'Your goal is to guess this code within 12 turns. Capture all the bulls and cows by ringing the Bell'
+    print " and lock them back up!\n\nYou can choose from the following colors:\n#{COLORS.join("\n")}\n\n"
     print 'Every guessing round you can input a color for each position. Duplicates are allowed, blanks are not. '
     print "You will then be shown:\n"
     print "- how many colors are in the correct position\n- how many other colors are correct but in the wrong position"
@@ -83,6 +83,16 @@ module Texts
       print "\nThe computer has cracked your code! That's a real Big Brain!"
       print "\n\nThe computer holds all the Bells, and whistles. Nothing left for you!"
       print "\n\nReady for an other challenge?"
+    end
+  end
+
+  def color_input
+    input = gets.chomp.downcase
+    if COLORS.include?(input)
+      input
+    else
+      print "Please enter a correct color!\n"
+      color_input
     end
   end
 end
@@ -129,8 +139,7 @@ class Game
     code = []
     (0..3).each do |i|
       print "Position #{i + 1} - "
-      code[i] = gets.chomp.downcase
-      break guesses unless COLORS.include?(code[i])
+      code[i] = color_input
     end
     puts "\nYour code: #{code.join(' - ')}\n\n"
     code
