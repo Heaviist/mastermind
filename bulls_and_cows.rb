@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# define checks
+# Checks for inputs, entered codes and computer guesses
 module Codes
   COLORS = %w[black white orange brown red pink].sort.freeze
   PERMUTATIONS = COLORS.repeated_permutation(4).to_a
@@ -30,7 +30,6 @@ module Codes
     [colors.sample, colors.sample, colors.sample, colors.sample]
   end
 
-  # Hash probably not necessary, but still there from the original idea
   def possible_codes(guess, result, options, outcomes = [], outcome = [])
     options.each do |code|
       outcome = check(guess, code)
@@ -40,7 +39,7 @@ module Codes
   end
 end
 
-# Write tutorial for the game
+# Collection of text outputs used during the game
 module Texts
   include Codes
 
@@ -52,8 +51,6 @@ module Texts
     print 'Every guessing round you can input a color for each position. Duplicates are allowed, blanks are not. '
     print "You will then be shown:\n"
     print "- how many colors are in the correct position\n- how many other colors are correct but in the wrong position"
-    print "\n\nNote: if you choose a color that's not in the list above, "
-    print "you will be asked to enter all entries for that round again.\n"
   end
 
   def play_as_computer?
