@@ -37,6 +37,16 @@ module Codes
     end
     outcomes
   end
+
+  def color_input
+    input = gets.chomp.downcase
+    if COLORS.include?(input)
+      input
+    else
+      print "Please enter a correct color!\n"
+      color_input
+    end
+  end
 end
 
 # Collection of text outputs used during the game
@@ -80,16 +90,6 @@ module Texts
       print "\nThe computer has cracked your code! That's a real Big Brain!"
       print "\n\nThe computer holds all the Bells, and whistles. Nothing left for you!"
       print "\n\nReady for an other challenge?"
-    end
-  end
-
-  def color_input
-    input = gets.chomp.downcase
-    if COLORS.include?(input)
-      input
-    else
-      print "Please enter a correct color!\n"
-      color_input
     end
   end
 end
