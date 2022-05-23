@@ -30,12 +30,13 @@ module Codes
     [colors.sample, colors.sample, colors.sample, colors.sample]
   end
 
-  def possible_codes(guess, result, options, outcomes = {}, outcome = [])
+  # Hash probably not necessary, but still there from the original idea
+  def possible_codes(guess, result, options, outcomes = [], outcome = [])
     options.each do |code|
       outcome = check(guess, code)
-      outcomes[code] = outcome if outcome == result
+      outcomes << code if outcome == result
     end
-    outcomes.keys
+    outcomes
   end
 end
 
@@ -99,7 +100,7 @@ class Game
   end
 
   def play
-    p @color_code
+    # p @color_code #enable to show code before play
     tutorial unless @games.positive?
     @games += 1
     play_as_computer?
@@ -159,7 +160,7 @@ class Game
   end
 
   def pc_crack(code, previous_options = PERMUTATIONS, guess = pc_guess)
-    print "Computer guess #{@rounds}: #{guess.join(' - ')}\n"
+    print "Computer round ##{@rounds}: #{guess.join(' - ')}\n"
     result = check(guess, code)
     print_result(result)
     winner('Computer') if result.first == @color_code.length
